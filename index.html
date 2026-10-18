@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun! ✨</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#E8B4B8',
+                        softPink: '#FFF0F3',
+                        warmPeach: '#FFCCD5',
+                        deepRose: '#C9184A',
+                        darkPlum: '#2B0B14',
+                        champagne: '#F7E7CE'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        cursive: ['"Caveat"', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.8)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 105, 180, 1)); }
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.92) rotate(-2deg); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-flicker { animation: flicker 0.6s ease-in-out infinite alternate; }
+        .glow-effect { animation: pulseGlow 3s infinite; }
+        
+        /* Glassmorphic card styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        
+        .glass-card-dark {
+            background: rgba(43, 11, 20, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(232, 180, 184, 0.25);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E8B4B8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-softPink via-warmPeach/30 to-softPink min-h-screen font-sans text-slate-800 antialiased relative overflow-x-hidden selection:bg-roseGold selection:text-white">
+
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-roseGold/30 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute top-1/2 -right-20 w-80 h-80 bg-warmPeach/40 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
+        <div class="absolute -bottom-20 left-1/3 w-96 h-96 bg-pink-200/40 rounded-full blur-3xl animate-pulse" style="animation-delay: 3s;"></div>
+    </div>
+
+    <!-- Header Audio & Setting Controls -->
+    <header class="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center max-w-4xl mx-auto pointer-events-none">
+        <div class="pointer-events-auto flex items-center gap-2">
+            <span id="musicStatusBadge" class="hidden items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-xs font-semibold text-deepRose shadow-sm border border-rose-100/80">
+                <i data-lucide="music" class="w-3.5 h-3.5 animate-spin text-pink-500"></i>
+                <span id="musicStatusText" class="font-serif italic text-sm tracking-wide">Alunan Musik Indah...</span>
+            </span>
+        </div>
+        <div class="pointer-events-auto flex items-center gap-2">
+            <button id="toggleAudioBtn" onclick="toggleAudio()" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md shadow-md hover:shadow-lg transition-all flex items-center justify-center text-slate-700 hover:text-deepRose border border-white/60 active:scale-95">
+                <i data-lucide="volume-x" id="audioIcon" class="w-5 h-5"></i>
+            </button>
+            <button onclick="openAdminModal()" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md shadow-md hover:shadow-lg transition-all flex items-center justify-center text-slate-700 hover:text-deepRose border border-white/60 active:scale-95">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative z-10 min-h-screen flex flex-col justify-center items-center px-4 py-12">
+
+        <section id="stepCandle" class="w-full max-w-md mx-auto text-center flex flex-col items-center transition-all duration-700">
+            <div class="inline-block px-4 py-1.5 bg-white/70 backdrop-blur-md rounded-full border border-rose-200/60 shadow-sm text-xs font-medium text-rose-600 mb-6 animate-bounce font-cursive text-base tracking-wide">
+                ✨ Sentuh lilin untuk meniupnya & panjatkan harapan! ✨
+            </div>
+            
+            <h1 id="landingTitle" class="font-serif text-4xl sm:text-5xl font-bold text-darkPlum mb-3 leading-tight tracking-tight italic">
+                Selamat Ulang Tahun!
+            </h1>
+            <p id="landingSub" class="text-slate-600 text-base sm:text-lg mb-8 font-serif">
+                Untuk sosok yang paling istimewa: <span id="landingTargetName" class="font-bold text-deepRose italic underline decoration-roseGold font-serif text-xl sm:text-2xl">Sayangku</span>
+            </p>
+
+            <!-- Interactive Birthday Cake with Flame -->
+            <div onclick="blowCandle()" class="cursor-pointer group relative my-6 py-4 px-8 rounded-2xl transition-transform active:scale-95 hover:scale-105">
+                <div class="glow-effect relative flex flex-col items-center">
+                    <!-- Flame -->
+                    <div id="candleFlame" class="w-6 h-10 bg-gradient-to-t from-amber-500 via-orange-400 to-yellow-200 rounded-full animate-flicker shadow-[0_0_20px_#f59e0b] -mb-1 relative z-20">
+                        <div class="w-2 h-4 bg-white/80 rounded-full mx-auto mt-1 blur-[1px]"></div>
+                    </div>
+                    <!-- Smoke (Hidden by default) -->
+                    <div id="candleSmoke" class="hidden absolute -top-8 w-8 h-12 flex-col items-center">
+                        <div class="w-2 h-2 bg-slate-400/40 rounded-full animate-ping"></div>
+                        <span class="text-xs text-slate-500 font-cursive text-base tracking-wide mt-1">~ Doa Terkirim ~</span>
+                    </div>
+                    <!-- Wick -->
+                    <div class="w-1 h-3 bg-slate-800 z-10"></div>
+                    <!-- Candle Body -->
+                    <div class="w-6 h-20 bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 rounded-t-md shadow-inner border-t border-white/50 relative overflow-hidden">
+                        <div class="absolute inset-x-0 top-3 h-2 bg-white/40 -rotate-12"></div>
+                        <div class="absolute inset-x-0 top-10 h-2 bg-white/40 -rotate-12"></div>
+                    </div>
+                    <!-- Cake Top Tier -->
+                    <div class="w-36 h-12 bg-gradient-to-r from-pink-100 via-rose-100 to-pink-100 rounded-t-xl border-b-4 border-rose-200 shadow-md flex items-center justify-around px-2">
+                        <span class="text-rose-400 text-xs">🌸</span>
+                        <span class="text-rose-400 text-xs">🍓</span>
+                        <span class="text-rose-400 text-xs">🌸</span>
+                    </div>
+                    <!-- Cake Bottom Tier -->
+                    <div class="w-48 h-16 bg-gradient-to-r from-rose-200 via-pink-200 to-rose-200 rounded-t-2xl shadow-lg relative overflow-hidden flex items-end justify-center pb-2 border-t border-white/60">
+                        <div class="absolute top-0 inset-x-0 h-4 bg-white/60 rounded-b-full"></div>
+                        <span class="text-xs tracking-widest text-deepRose font-serif italic font-bold opacity-80">HAPPY BIRTHDAY</span>
+                    </div>
+                    <!-- Cake Plate -->
+                    <div class="w-56 h-4 bg-slate-200 rounded-full shadow-xl border-t border-white"></div>
+                </div>
+            </div>
+
+            <p class="text-xs font-serif italic text-slate-500 mt-4">Ketuk lilin indah di atas untuk melangkah ke kejutan berikutnya 🎁</p>
+        </section>
+
+        <section id="stepEnvelope" class="hidden w-full max-w-md mx-auto text-center flex flex-col items-center transition-all duration-700">
+            <h2 class="font-serif italic text-3xl sm:text-4xl font-bold text-darkPlum mb-3">
+                Sepucuk Surat Istimewa ✉️
+            </h2>
+            <p class="text-slate-600 text-sm sm:text-base mb-8 font-serif">
+                Lilin telah redup dengan sejuta harapan. Buka amplop manis ini untuk membaca pesan dari hati.
+            </p>
+
+            <!-- Interactive Envelope -->
+            <div onclick="openEnvelope()" class="cursor-pointer group relative w-72 h-48 bg-rose-200 rounded-2xl shadow-xl flex items-center justify-center border-2 border-rose-300/80 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-b from-rose-300 to-rose-200 rounded-2xl"></div>
+                <div class="relative z-10 w-16 h-16 bg-deepRose text-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <i data-lucide="heart" class="w-8 h-8 fill-current text-white"></i>
+                </div>
+                <div class="absolute bottom-3 text-xs font-serif italic font-semibold text-rose-900 tracking-wider">
+                    Ketuk Untuk Membuka Pesan
+                </div>
+            </div>
+        </section>
+
+        <section id="stepWish" class="hidden w-full max-w-xl mx-auto transition-all duration-700">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl relative border border-white/80">
+                <div class="absolute -top-5 right-6 w-10 h-10 bg-deepRose text-white rounded-full flex items-center justify-center shadow-lg">
+                    <i data-lucide="quote" class="w-5 h-5"></i>
+                </div>
+
+                <div class="text-center mb-6">
+                    <span class="text-xs uppercase tracking-widest font-bold text-deepRose bg-rose-100/80 px-3.5 py-1 rounded-full font-serif italic">
+                        Surat Dari Hati
+                    </span>
+                    <h2 id="cardHeaderTitle" class="font-serif italic text-3xl sm:text-4xl font-bold text-darkPlum mt-3">
+                        Selamat Ulang Tahun, <span id="wishTargetName" class="text-deepRose">Sayang</span>! 🎉
+                    </h2>
+                </div>
+
+                <!-- Main Greeting Text -->
+                <div id="wishTextDisplay" class="text-slate-700 text-base sm:text-lg leading-relaxed whitespace-pre-line text-justify font-serif italic bg-white/70 p-6 rounded-2xl border border-rose-100 shadow-inner">
+                    Selamat ulang tahun! Semoga di usia yang baru ini, setiap langkahmu dipenuhi dengan kebahagiaan, kesehatan, dan keberkahan yang melimpah. Terima kasih telah menjadi sosok yang luar biasa dan selalu membawa kehangatan di setiap hariku. Semoga semua impian dan harapanmu segera terwujud!
+                </div>
+
+                <!-- Action Button to Gallery -->
+                <div class="mt-8 text-center">
+                    <button onclick="goToGallery()" class="px-7 py-3.5 bg-gradient-to-r from-deepRose to-pink-600 hover:from-pink-600 hover:to-deepRose text-white font-medium rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 mx-auto active:scale-95 group font-serif italic text-lg">
+                        <i data-lucide="image" class="w-5 h-5"></i>
+                        <span>Lihat Kenangan Indah & Musik</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="stepGallery" class="hidden w-full max-w-2xl mx-auto transition-all duration-700">
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-widest font-bold text-deepRose bg-rose-100/80 px-3.5 py-1 rounded-full font-serif italic">
+                    Ukiran Kenangan
+                </span>
+                <h2 class="font-serif italic text-3xl sm:text-4xl font-bold text-darkPlum mt-2">
+                    Galeri Momen Indah ✨
+                </h2>
+                <p class="text-slate-600 text-sm sm:text-base mt-1 font-serif">
+                    Setiap detik bersamamu adalah guratan kisah indah yang tak akan pernah pudar.
+                </p>
+            </div>
+
+            <!-- Photos Grid -->
+            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+                <!-- Dynamic Photos inserted here -->
+            </div>
+
+            <!-- Action Button to Wishes / Prayers Section -->
+            <div class="text-center">
+                <button onclick="goToPrayers()" class="px-7 py-3.5 bg-darkPlum text-roseGold hover:bg-black font-medium rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 mx-auto active:scale-95 group font-serif italic text-lg">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-yellow-400"></i>
+                    <span>Untaian Doa & Harapan</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="stepPrayers" class="hidden w-full max-w-lg mx-auto transition-all duration-700">
+            <div class="glass-card-dark rounded-3xl p-6 sm:p-8 shadow-2xl text-white relative overflow-hidden">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 bg-roseGold/20 rounded-full flex items-center justify-center mx-auto mb-3 text-roseGold">
+                        <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="font-serif italic text-3xl sm:text-4xl font-bold text-roseGold">
+                        Doa & Harapan Tulus 🙏
+                    </h2>
+                    <p class="text-xs font-serif text-rose-200/80 mt-1 italic">Dipanjatkan dengan keheningan cinta di hari bahagiamu</p>
+                </div>
+
+                <!-- Prayers List -->
+                <div id="prayersList" class="space-y-3.5 mb-8">
+                    <!-- Dynamic Prayers -->
+                </div>
+
+                <!-- Restart Interactive Journey -->
+                <div class="text-center pt-5 border-t border-rose-300/20">
+                    <p class="font-cursive text-3xl text-roseGold mb-4">"Semoga kebahagiaan selalu memeluk harimu..."</p>
+                    <button onclick="restartJourney()" class="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xs font-medium rounded-full transition-all flex items-center gap-2 mx-auto active:scale-95 font-serif italic">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Ulangi Perjalanan Ucapan</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="adminModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-card bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative border border-slate-200">
+            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Password Form Layer -->
+            <div id="adminAuthLayer" class="py-6 text-center">
+                <div class="w-12 h-12 bg-rose-100 text-deepRose rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif italic text-3xl font-bold text-slate-800 mb-2">Akses Pengaturan Admin</h3>
+                <p class="text-xs font-serif text-slate-500 mb-6">Masukkan PIN keamanan untuk memperbarui atau mengunggah momen baru.</p>
+                
+                <div class="max-w-xs mx-auto space-y-4">
+                    <input type="password" id="adminPinInput" placeholder="Masukkan PIN (default: 1234567)" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-deepRose focus:border-transparent outline-none">
+                    <button onclick="verifyAdminPin()" class="w-full py-3 bg-deepRose hover:bg-rose-700 text-white font-serif italic text-lg font-medium rounded-xl shadow-md transition-all active:scale-95">
+                        Buka Pengaturan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Panel Layer -->
+            <div id="adminPanelLayer" class="hidden space-y-5">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h3 class="font-serif italic text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-5 h-5 text-deepRose"></i>
+                        <span>Panel Kelola Konten</span>
+                    </h3>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Admin Aktif</span>
+                </div>
+
+                <form onsubmit="saveAdminSettings(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-serif italic text-slate-700 mb-1 font-bold">Judul Utama Landing Page</label>
+                        <input type="text" id="cfgLandingTitle" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none font-serif">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-serif italic text-slate-700 mb-1 font-bold">Nama Penerima / Orang Tersayang</label>
+                        <input type="text" id="cfgTargetName" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none font-serif">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-serif italic text-slate-700 mb-1 font-bold">Teks Ucapan Utama</label>
+                        <textarea id="cfgWishText" rows="4" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none font-serif italic"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-serif italic text-slate-700 mb-1 font-bold">Tautan Musik (MP3 / YouTube)</label>
+                        <input type="text" id="cfgMusicUrl" placeholder="URL MP3 atau Link YouTube" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none">
+                    </div>
+
+                    <!-- GALLERY PHOTO MANAGEMENT WITH UPLOAD FEATURE -->
+                    <div class="p-4 bg-rose-50/60 rounded-2xl border border-rose-100 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-serif italic text-slate-800 font-bold">
+                                Kelola Galeri Momen & Foto
+                            </label>
+                            <span class="text-[10px] text-deepRose font-serif italic">Unggah foto baru</span>
+                        </div>
+
+                        <!-- Upload New Image Button Box -->
+                        <div class="flex items-center gap-3">
+                            <label class="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-rose-300 hover:bg-rose-100/50 text-deepRose font-serif italic text-sm rounded-xl shadow-sm transition-all active:scale-95">
+                                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                                <span>Unggah Foto dari Perangkat</span>
+                                <input type="file" id="imageUploader" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-serif text-slate-500 mb-1">URL Foto Galeri (Pisahkan dengan koma)</label>
+                            <textarea id="cfgGalleryPhotos" rows="3" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none font-mono" placeholder="https://image1.jpg, https://image2.jpg"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-serif italic text-slate-700 mb-1 font-bold">Daftar Untaian Doa (Satu baris per doa)</label>
+                        <textarea id="cfgPrayers" rows="3" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-deepRose outline-none font-serif italic"></textarea>
+                    </div>
+
+                    <div class="pt-2 flex gap-3">
+                        <button type="button" onclick="closeAdminModal()" class="w-1/2 py-2.5 border border-slate-300 text-slate-700 font-serif italic text-base rounded-xl hover:bg-slate-50 transition-all">
+                            Batal
+                        </button>
+                        <button type="submit" class="w-1/2 py-2.5 bg-deepRose hover:bg-rose-700 text-white font-serif italic text-base font-bold rounded-xl shadow-md transition-all">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Audio Elements -->
+    <audio id="bgAudio" loop class="hidden"></audio>
+
+    <script>
+        // App State & Configuration Default
+        const DEFAULT_CONFIG = {
+            landingTitle: "Selamat Ulang Tahun!",
+            targetName: "Sayangku",
+            wishText: "Selamat ulang tahun! Semoga di usia yang baru ini, setiap langkahmu dipenuhi dengan kebahagiaan, kesehatan, dan keberkahan yang melimpah. Terima kasih telah menjadi sosok yang luar biasa dan selalu membawa kehangatan di setiap hariku. Semoga semua impian dan harapanmu segera terwujud!",
+            musicUrl: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=happy-birthday-113824.mp3",
+            galleryPhotos: [
+                "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1517263904808-5dc91e3e7044?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=600&q=80"
+            ],
+            prayers: [
+                "Semoga senantiasa dilimpahi kesehatan, kebahagiaan, dan umur panjang yang berkah.",
+                "Diselimuti kedamaian serta kekuatan dalam menggapai setiap impian indahmu.",
+                "Selalu dikelilingi orang-orang baik yang menyayangimu dengan tulus.",
+                "Setiap langkah perjuanganmu senantiasa dimudahkan dan diberkati."
+            ]
+        };
+
+        let appConfig = { ...DEFAULT_CONFIG };
+        let isAudioPlaying = false;
+        let audioType = 'mp3';
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadSettingsFromStorage();
+            renderAppContent();
+        });
+
+        // Load Settings from LocalStorage
+        function loadSettingsFromStorage() {
+            const saved = localStorage.getItem('hbd_web_config');
+            if (saved) {
+                try {
+                    appConfig = { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+                } catch(e) {
+                    console.error("Gagal memuat konfigurasi", e);
+                }
+            }
+        }
+
+        // Save Settings to LocalStorage
+        function saveSettingsToStorage() {
+            localStorage.setItem('hbd_web_config', JSON.stringify(appConfig));
+        }
+
+        // Render Application Content with Aesthetic Typography
+        function renderAppContent() {
+            document.getElementById('landingTitle').innerText = appConfig.landingTitle;
+            document.getElementById('landingTargetName').innerText = appConfig.targetName;
+            document.getElementById('wishTargetName').innerText = appConfig.targetName;
+            document.getElementById('wishTextDisplay').innerText = appConfig.wishText;
+
+            // Render Gallery Photos
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '';
+            appConfig.galleryPhotos.forEach((photoUrl, index) => {
+                const photoCard = document.createElement('div');
+                photoCard.className = "group relative rounded-2xl overflow-hidden shadow-md aspect-square bg-rose-100 border-2 border-white/80 hover:shadow-xl transition-all duration-300";
+                photoCard.innerHTML = `
+                    <img src="${photoUrl}" alt="Momen ${index+1}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x600/E8B4B8/FFF?text=Momen+Indah'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <span class="text-white text-base font-serif italic tracking-wide">Momen Kenangan #${index+1}</span>
+                    </div>
+                `;
+                galleryGrid.appendChild(photoCard);
+            });
+
+            // Render Prayers List
+            const prayersList = document.getElementById('prayersList');
+            prayersList.innerHTML = '';
+            appConfig.prayers.forEach((prayerText) => {
+                const prayerItem = document.createElement('div');
+                prayerItem.className = "flex items-start gap-3 bg-white/10 p-4 rounded-2xl border border-white/10 text-sm sm:text-base font-serif italic text-rose-100/95";
+                prayerItem.innerHTML = `
+                    <i data-lucide="sparkles" class="w-4 h-4 text-yellow-300 flex-shrink-0 mt-1"></i>
+                    <span>${prayerText}</span>
+                `;
+                prayersList.appendChild(prayerItem);
+            });
+            lucide.createIcons();
+
+            setupAudioSource();
+        }
+
+        // Setup Audio Configuration
+        function setupAudioSource() {
+            const bgAudio = document.getElementById('bgAudio');
+            if (appConfig.musicUrl.includes('youtube.com') || appConfig.musicUrl.includes('youtu.be')) {
+                audioType = 'youtube';
+                bgAudio.pause();
+            } else {
+                audioType = 'mp3';
+                bgAudio.src = appConfig.musicUrl;
+            }
+        }
+
+        // Toggle Audio Playback
+        function toggleAudio() {
+            const bgAudio = document.getElementById('bgAudio');
+            const audioIcon = document.getElementById('audioIcon');
+            const badge = document.getElementById('musicStatusBadge');
+
+            if (isAudioPlaying) {
+                if (audioType === 'mp3') {
+                    bgAudio.pause();
+                }
+                isAudioPlaying = false;
+                audioIcon.setAttribute('data-lucide', 'volume-x');
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            } else {
+                if (audioType === 'mp3') {
+                    bgAudio.play().then(() => {
+                        isAudioPlaying = true;
+                        audioIcon.setAttribute('data-lucide', 'volume-2');
+                        badge.classList.remove('hidden');
+                        badge.classList.add('flex');
+                    }).catch(err => {
+                        console.log("Autoplay ditahan oleh peramban.", err);
+                    });
+                } else {
+                    isAudioPlaying = true;
+                    audioIcon.setAttribute('data-lucide', 'volume-2');
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // Interactive Candle Blow Transition
+        function blowCandle() {
+            document.getElementById('candleFlame').classList.add('hidden');
+            const smoke = document.getElementById('candleSmoke');
+            smoke.classList.remove('hidden');
+            smoke.classList.add('flex');
+
+            confetti({
+                particleCount: 90,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+
+            if (!isAudioPlaying) {
+                toggleAudio();
+            }
+
+            setTimeout(() => {
+                document.getElementById('stepCandle').classList.add('hidden');
+                document.getElementById('stepEnvelope').classList.remove('hidden');
+            }, 1800);
+        }
+
+        // Envelope Open Transition
+        function openEnvelope() {
+            confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 }
+            });
+            confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 }
+            });
+
+            document.getElementById('stepEnvelope').classList.add('hidden');
+            document.getElementById('stepWish').classList.remove('hidden');
+        }
+
+        function goToGallery() {
+            document.getElementById('stepWish').classList.add('hidden');
+            document.getElementById('stepGallery').classList.remove('hidden');
+        }
+
+        function goToPrayers() {
+            document.getElementById('stepGallery').classList.add('hidden');
+            document.getElementById('stepPrayers').classList.remove('hidden');
+            
+            confetti({
+                particleCount: 130,
+                spread: 100,
+                origin: { y: 0.4 }
+            });
+        }
+
+        function restartJourney() {
+            document.getElementById('stepPrayers').classList.add('hidden');
+            document.getElementById('candleFlame').classList.remove('hidden');
+            document.getElementById('candleSmoke').classList.add('hidden');
+            document.getElementById('stepCandle').classList.remove('hidden');
+        }
+
+        // Admin Controls & Security Verification
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('adminAuthLayer').classList.remove('hidden');
+            document.getElementById('adminPanelLayer').classList.add('hidden');
+            document.getElementById('adminPinInput').value = '';
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function verifyAdminPin() {
+            const pin = document.getElementById('adminPinInput').value;
+            if (pin === '1234567') {
+                document.getElementById('adminAuthLayer').classList.add('hidden');
+                document.getElementById('adminPanelLayer').classList.remove('hidden');
+
+                document.getElementById('cfgLandingTitle').value = appConfig.landingTitle;
+                document.getElementById('cfgTargetName').value = appConfig.targetName;
+                document.getElementById('cfgWishText').value = appConfig.wishText;
+                document.getElementById('cfgMusicUrl').value = appConfig.musicUrl;
+                document.getElementById('cfgGalleryPhotos').value = appConfig.galleryPhotos.join(', ');
+                document.getElementById('cfgPrayers').value = appConfig.prayers.join('\n');
+            } else {
+                alert('PIN Salah! Kata sandi admin default adalah: 1234567');
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const uploadedDataUrl = e.target.result;
+                const currentArea = document.getElementById('cfgGalleryPhotos');
+                
+                if (currentArea.value.trim() !== '') {
+                    currentArea.value = uploadedDataUrl + ', ' + currentArea.value;
+                } else {
+                    currentArea.value = uploadedDataUrl;
+                }
+
+                confetti({
+                    particleCount: 25,
+                    spread: 40,
+                    origin: { y: 0.8 }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Save Admin Settings Form Submit Handler
+        function saveAdminSettings(event) {
+            event.preventDefault();
+
+            appConfig.landingTitle = document.getElementById('cfgLandingTitle').value.trim() || DEFAULT_CONFIG.landingTitle;
+            appConfig.targetName = document.getElementById('cfgTargetName').value.trim() || DEFAULT_CONFIG.targetName;
+            appConfig.wishText = document.getElementById('cfgWishText').value.trim() || DEFAULT_CONFIG.wishText;
+            appConfig.musicUrl = document.getElementById('cfgMusicUrl').value.trim() || DEFAULT_CONFIG.musicUrl;
+
+            const photosRaw = document.getElementById('cfgGalleryPhotos').value;
+            appConfig.galleryPhotos = photosRaw.split(',')
+                .map(url => url.trim())
+                .filter(url => url.length > 0);
+
+            const prayersRaw = document.getElementById('cfgPrayers').value;
+            appConfig.prayers = prayersRaw.split('\n')
+                .map(p => p.trim())
+                .filter(p => p.length > 0);
+
+            saveSettingsToStorage();
+            renderAppContent();
+            closeAdminModal();
+
+            confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.5 }
+            });
+        }
+    </script>
+</body>
+</html>
